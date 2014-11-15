@@ -33,7 +33,7 @@ void InitializeBMP085(){
 }
 
 // Publish Pressure, Altitude
-char          BMP085Info[256];
+char          BMP085info[256];
 unsigned long BMP085interval = 2000;
 unsigned long BMP085lastTime;
 
@@ -44,22 +44,24 @@ int           LEDstate       = LOW;
 const int     LEDPin         = D7;
 #endif
 
-void publishBMP085Info(){
-    updateBMP085Info();
-    Spark.publish("BMP085Info", BMP085Info);
+void publishBMP085info(){
+    updateBMP085info();
+    Spark.publish("BMP085info", BMP085info);
 }
 
-int getBMP085Info(){
+int getBMP085info(String command){
     if ( (millis()-BMP085lastTime) < BMP085interval ) {
-        return;
+        return 0;
     }
     
-    updateBMP085Info();
+    updateBMP085info();
     
     BMP085lastTime = millis();
+    
+    return 1;
 }
 
-void updateBMP085Info(){
+void updateBMP085info(){
 #ifdef BMP_SERIAL
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());
@@ -84,7 +86,7 @@ void updateBMP085Info(){
     Serial.println(" meters");
 #endif
     
-    sprintf(BMP085Info, "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f, \"time\": %d}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500), millis());
+    sprintf(BMP085info, "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f, \"time\": %lu}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500), millis());
 }
 
 // Initialize applicaiton
@@ -98,11 +100,11 @@ void InitializeApplication(){
 #endif
 
 #ifdef BMP_VARIABLE
-  Spark.variable( "BMP085"   , &BMP085Info   , STRING );
+  Spark.variable( "BMP085"   , &BMP085info   , STRING );
 #endif
 
 #ifdef BMP_FUNCTION
-  Spark.function( "getBMP085", &getBMP085Info         );
+  Spark.function( "getBMP085",  getBMP085info         );
 #endif
 }
 
@@ -137,9 +139,13 @@ void loop() {
   BlinkLED();
 #endif
 
-#ifdef BMP_PUBLISH
-  publishBMP085Info();
-#elif BMP_VARIABLE
-  updateBMP085Info();
-#endif
+//#ifdef BMP_PUBLISH
+//  publishBMP085info();
+//#else
+
+//#ifdef BMP_VARIABLE
+//  updateBMP085info();
+//#endif
+
+//#endif
 }
