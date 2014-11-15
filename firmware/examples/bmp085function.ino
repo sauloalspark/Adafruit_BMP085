@@ -13,10 +13,11 @@
 */
 
 Adafruit_BMP085 bmp;
-
+char BMP085Info[128];
+    
 // Initialize BMP085
 
-void InitializeBMP085(){
+void InitializeBMP085(String command){
 	if (!bmp.begin()) {
 	    RGB.control(true);
 	    RGB.color(255, 255, 255);
@@ -29,7 +30,7 @@ void InitializeBMP085(){
 }
 
 // Publish Pressure, Altitude
-void getBMP085Info(){
+int getBMP085Info(){
 #ifdef BMP_SERIAL
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());
@@ -54,11 +55,10 @@ void getBMP085Info(){
     Serial.println(" meters");
 #endif
     
-    char BMP085Info[128];
     sprintf(BMP085Info, "Temperature=%.2f °C, Pressure=%.2f hPa Altitude %.2f meters, Real Altitude %.2f meters", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500));
     
     //Spark.publish("bmpo85info", szEventInfo);
-    return BMP085Info;
+    return 0;
 }
 
 // Initialize applicaiton
@@ -71,7 +71,8 @@ void InitializeApplication(){
     pinMode(D7, OUTPUT);
 //#endif
 
-  Spark.function("BMP085", &getBMP085Info);
+  Spark.variable( "BMP085"   , &BMP085Info   , STRING );
+  Spark.function( "getBMP085", &getBMP085Info         );
 }
 
 // Blink LED and wait for some time
