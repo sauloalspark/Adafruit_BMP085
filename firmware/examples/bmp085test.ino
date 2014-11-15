@@ -1,6 +1,8 @@
 // This #include statement was automatically added by the Spark IDE.
 #include "Adafruit_BMP085/Adafruit_BMP085.h"
 
+//#define BMP_SERIAL
+
 /*
 	Wiring
 	------
@@ -23,6 +25,7 @@ void InitializeBMP085(){
 
 // Publish Pressure, Altitude
 void PublishBMP085Info(){
+#ifdef BMP_SERIAL
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());
     Serial.println(" *C");
@@ -44,10 +47,11 @@ void PublishBMP085Info(){
     Serial.print("Real altitude = ");
     Serial.print(bmp.readAltitude(101500));
     Serial.println(" meters");
-    
+#endif
+
     char szEventInfo[64];
     
-    sprintf(szEventInfo, "Temperature=%.2f °C, Pressure=%.2f hPa", bmp.readTemperature(), bmp.readPressure()/100.0);
+    sprintf(szEventInfo, "Temperature=%.2f Â°C, Pressure=%.2f hPa", bmp.readTemperature(), bmp.readPressure()/100.0);
     
     Spark.publish("bmpo85info", szEventInfo);
 }
@@ -55,7 +59,7 @@ void PublishBMP085Info(){
 // Initialize applicaiton
 void InitializeApplication(){
     Serial.begin(9600);
-	pinMode(D7, OUTPUT);
+    pinMode(D7, OUTPUT);
 }
 
 // Blink LED and wait for some time
@@ -69,7 +73,7 @@ void BlinkLED(){
 void setup() {
     InitializeApplication();
     
-	InitializeBMP085();
+    InitializeBMP085();
 }
 
 void loop() {
@@ -78,5 +82,5 @@ void loop() {
     
     BlinkLED();   
 	
-	delay(2000);
+    delay(2000);
 }
