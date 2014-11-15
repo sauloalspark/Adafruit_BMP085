@@ -18,9 +18,14 @@ Adafruit_BMP085 bmp;
 
 void InitializeBMP085(){
 	if (!bmp.begin()) {
+	    RGB.control(true);
+	    RGB.color(255, 255, 255);
+#ifdef BMP_SERIAL
 		Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+#endif
 		while (1) {}
 	}
+	RGB.control(false);
 }
 
 // Publish Pressure, Altitude
@@ -62,9 +67,9 @@ void InitializeApplication(){
     Serial.begin(9600);
 #endif
 
-#ifdef BMP_SERIAL
+//#ifdef BMP_SERIAL
     pinMode(D7, OUTPUT);
-#endif
+//#endif
 
   Spark.variable("BMP085", &BMP085Info, STRING);
 }
