@@ -1,5 +1,5 @@
 {
-	"name": "Adafruit_BMP085",
+	"name": "Adafruit_BMP085_noserial",
 	"author": "Krishnaraj Varma",
 	"version": "1.0.2",
 	"license": "BSD",
