@@ -29,9 +29,22 @@ void InitializeBMP085(){
 }
 
 // Publish Pressure, Altitude
-char BMP085Info[128];
+char          BMP085Info[256];
+unsigned long BMP085interval = 2000;
+unsigned long BMP085lastTime;
+//#ifdef BMP_SERIAL
+unsigned long LEDinterval    =  500;
+unsigned long LEDlastTime;
+int           LEDstate       = LOW;
+const int     LEDPin         = D7;
+//#endif
 
 void getBMP085Info(){
+
+    if ( (millis()-BMP085lastTime) < BMP085interval ) {
+        return;
+    }
+    
 #ifdef BMP_SERIAL
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());
@@ -56,9 +69,10 @@ void getBMP085Info(){
     Serial.println(" meters");
 #endif
     
-    sprintf(BMP085Info, "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500));
+    sprintf(BMP085Info, "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f, \"time\": %d}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500), millis());
     
     //Spark.publish("bmpo85info", szEventInfo);
+    BMP085lastTime = millis();
 }
 
 // Initialize applicaiton
@@ -68,18 +82,30 @@ void InitializeApplication(){
 #endif
 
 //#ifdef BMP_SERIAL
-    pinMode(D7, OUTPUT);
+    pinMode(LEDPin, OUTPUT);
 //#endif
 
   Spark.variable("BMP085", &BMP085Info, STRING);
 }
 
 // Blink LED and wait for some time
-void BlinkLED(){
-    digitalWrite(D7, HIGH);   
-    delay(500);
-    digitalWrite(D7, LOW);   
-    delay(500);
+void BlinkLED() {
+    unsigned long currentMillis = millis();
+ 
+    if((currentMillis - LEDlastTime) > LEDinterval) {
+        // save the last time you blinked the LED 
+        LEDlastTime = currentMillis;   
+
+        // if the LED is off turn it on and vice-versa:
+        if (LEDstate == LOW) {
+            LEDstate = HIGH;
+        } else {
+            LEDstate = LOW;
+        }
+
+        // set the LED with the ledState of the variable:
+        digitalWrite(LEDPin, LEDstate);
+  }
 }
 
 void setup() {
@@ -91,6 +117,6 @@ void setup() {
 void loop() {
 //#ifdef BMP_SERIAL
   BlinkLED();
-  getBMP085Info();
 //#endif
+  getBMP085Info();
 }
