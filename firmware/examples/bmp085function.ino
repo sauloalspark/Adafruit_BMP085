@@ -55,7 +55,7 @@ int getBMP085Info(){
     Serial.println(" meters");
 #endif
     
-    sprintf(BMP085Info, "Temperature=%.2f °C, Pressure=%.2f hPa Altitude %.2f meters, Real Altitude %.2f meters", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500));
+    sprintf(BMP085Info, "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500));
     
     //Spark.publish("bmpo85info", szEventInfo);
     return 0;
