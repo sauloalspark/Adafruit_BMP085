@@ -29,8 +29,6 @@ void InitializeBMP085(){
 }
 
 // Publish Pressure, Altitude
-char BMP085Info[128];
-
 void getBMP085Info(){
 #ifdef BMP_SERIAL
     Serial.print("Temperature = ");
@@ -56,9 +54,11 @@ void getBMP085Info(){
     Serial.println(" meters");
 #endif
     
+    char BMP085Info[128];
     sprintf(BMP085Info, "Temperature=%.2f °C, Pressure=%.2f hPa Altitude %.2f meters, Real Altitude %.2f meters", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500));
     
     //Spark.publish("bmpo85info", szEventInfo);
+    return BMP085Info;
 }
 
 // Initialize applicaiton
@@ -71,7 +71,7 @@ void InitializeApplication(){
     pinMode(D7, OUTPUT);
 //#endif
 
-  Spark.variable("BMP085", &BMP085Info, STRING);
+  Spark.function("BMP085", &getBMP085Info);
 }
 
 // Blink LED and wait for some time
@@ -84,13 +84,11 @@ void BlinkLED(){
 
 void setup() {
     InitializeApplication();
-    
     InitializeBMP085();
 }
 
 void loop() {
 //#ifdef BMP_SERIAL
   BlinkLED();
-  getBMP085Info();
 //#endif
 }
