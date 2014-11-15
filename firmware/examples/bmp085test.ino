@@ -58,8 +58,10 @@ void PublishBMP085Info(){
 
 // Initialize applicaiton
 void InitializeApplication(){
+#ifdef BMP_SERIAL
     Serial.begin(9600);
     pinMode(D7, OUTPUT);
+#endif
 }
 
 // Blink LED and wait for some time
@@ -79,8 +81,10 @@ void setup() {
 void loop() {
     // Publish events. Wait for 2 second between publishes
     PublishBMP085Info(); 
-    
-    BlinkLED();   
+
+#ifdef BMP_SERIAL
+    BlinkLED();
+#endif
 	
     delay(2000);
 }
