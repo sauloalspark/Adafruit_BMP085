@@ -66,7 +66,7 @@ void InitializeApplication(){
     pinMode(D7, OUTPUT);
 #endif
 
-  Spark.variable("BMP085", &BMP085Info, DOUBLE);
+  Spark.variable("BMP085", &BMP085Info, STRING);
 }
 
 // Blink LED and wait for some time
