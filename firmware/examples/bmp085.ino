@@ -1,7 +1,7 @@
 // This #include statement was automatically added by the Spark IDE.
 #include "Adafruit_BMP085_noserial/Adafruit_BMP085_noserial.h"
 
-//#define BMP_SERIAL
+#define BMP_SERIAL
 #define BMP_LED
 #define BMP_FUNCTION
 #define BMP_PUBLISH
@@ -32,9 +32,14 @@ void InitializeBMP085(){
 	RGB.control(false);
 }
 
+unsigned long publishTTL     = 21600;
+
 // Publish Pressure, Altitude
 char          BMP085info[256];
-unsigned long BMP085interval = 2000;
+char          BMP085infoS[62];
+//unsigned long BMP085interval = 30000;
+unsigned long BMP085interval = 5000;
+unsigned long BMP085altDiff  = 101500;
 unsigned long BMP085lastTime;
 
 #ifdef BMP_LED
@@ -44,24 +49,40 @@ int           LEDstate       = LOW;
 const int     LEDPin         = D7;
 #endif
 
-void publishBMP085info(){
-    updateBMP085info();
-    Spark.publish("BMP085info", BMP085info);
-}
 
-int getBMP085info(String command){
+
+void publishBMP085info(){
     if ( (millis()-BMP085lastTime) < BMP085interval ) {
-        return 0;
+        return;
     }
     
-    updateBMP085info();
+    //Spark.publish("neoUpdate"   , "publish update", publishTTL, PRIVATE);
+    
+    getBMP085info("");
+    
+    //Spark.publish("neoUpdate"   , "publish updated", publishTTL, PRIVATE);
+    
+    Spark.publish("BMP085infoEv", BMP085infoS, publishTTL, PRIVATE);
+    //Spark.publish("BMP085infoEv", "pubishing actual results", publishTTL, PRIVATE);
     
     BMP085lastTime = millis();
-    
-    return 1;
 }
 
 void updateBMP085info(){
+    if ( (millis()-BMP085lastTime) < BMP085interval ) {
+        return;
+    }
+    
+    //Spark.publish("neoUpdate", "function", publishTTL, PRIVATE);
+    
+    getBMP085info("");
+    
+    BMP085lastTime = millis();
+}
+
+int getBMP085info(String command){
+    Spark.publish("neoUpdate", "updating", publishTTL, PRIVATE);
+    
 #ifdef BMP_SERIAL
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());
@@ -82,11 +103,16 @@ void updateBMP085info(){
   // vary with weather and such. If it is 1015 millibars
   // that is equal to 101500 Pascals.
     Serial.print("Real altitude = ");
-    Serial.print(bmp.readAltitude(101500));
+    Serial.print(bmp.readAltitude(BMP085altDiff));
     Serial.println(" meters");
 #endif
     
-    sprintf(BMP085info, "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f, \"time\": %lu}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(101500), millis());
+    sprintf(BMP085info , "{\"temperature\": %.5f, \"pressure\": %.5f, \"altitude\": %.5f, \"real_altitude\": %.5f, \"time\": %lu}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(BMP085altDiff), millis());
+    sprintf(BMP085infoS, "{\"t\":%.5f,\"p\":%.5f,\"a\":%.5f,\"ra\":%.5f}", bmp.readTemperature(), bmp.readPressure()/100.0, bmp.readAltitude(), bmp.readAltitude(BMP085altDiff));
+
+    Spark.publish("neoUpdate", "updated" , publishTTL, PRIVATE);
+
+    return 1;
 }
 
 // Initialize applicaiton
@@ -139,13 +165,15 @@ void loop() {
   BlinkLED();
 #endif
 
-#ifdef BMP_PUBLISH
+
+
+//#ifdef BMP_PUBLISH
   publishBMP085info();
-#else
+//#else
 
-#ifdef BMP_VARIABLE
-  updateBMP085info();
-#endif
+//#ifdef BMP_VARIABLE
+//  updateBMP085info();
+//#endif
 
-#endif
+//#endif
 }
