@@ -1,10 +1,10 @@
 // This #include statement was automatically added by the Spark IDE.
 #include "Adafruit_BMP085_noserial/Adafruit_BMP085_noserial.h"
 
-#define BMP_SERIAL
+//#define BMP_SERIAL
 #define BMP_LED
-#define BMP_FUNCTION
-#define BMP_PUBLISH
+//#define BMP_FUNCTION
+//#define BMP_PUBLISH
 #define BMP_VARIABLE
 
 /*
@@ -49,6 +49,11 @@ int           LEDstate       = LOW;
 const int     LEDPin         = D7;
 #endif
 
+
+int tinkerDigitalRead( String pin     );
+int tinkerDigitalWrite(String command );
+int tinkerAnalogRead(  String pin     );
+int tinkerAnalogWrite( String command );
 
 
 void publishBMP085info(){
@@ -126,12 +131,17 @@ void InitializeApplication(){
 #endif
 
 #ifdef BMP_VARIABLE
-  Spark.variable( "BMP085"   , &BMP085info   , STRING );
+    Spark.variable( "BMP085"   , &BMP085info   , STRING );
 #endif
 
 #ifdef BMP_FUNCTION
-  Spark.function( "getBMP085",  getBMP085info         );
+    Spark.function( "getBMP085",  getBMP085info         );
 #endif
+
+    Spark.function( "digitalread" , tinkerDigitalRead  );
+    Spark.function( "digitalwrite", tinkerDigitalWrite );
+    Spark.function( "analogread"  , tinkerAnalogRead   );
+    Spark.function( "analogwrite" , tinkerAnalogWrite  );
 }
 
 // Blink LED and wait for some time
@@ -153,6 +163,59 @@ void BlinkLED() {
         digitalWrite(LEDPin, LEDstate);
   }
 }
+
+int tinkerDigitalRead(String pin) {
+    int pinNumber = pin.charAt(1) - '0';
+    if (pinNumber< 0 || pinNumber >7) return -1;
+    if(pin.startsWith("D")) {
+        pinMode(pinNumber, INPUT_PULLDOWN);
+        return digitalRead(pinNumber);}
+    else if (pin.startsWith("A")){
+        pinMode(pinNumber+10, INPUT_PULLDOWN);
+        return digitalRead(pinNumber+10);}
+    return -2;}
+
+int tinkerDigitalWrite(String command){
+    bool value = 0;
+    int pinNumber = command.charAt(1) - '0';
+    if (pinNumber< 0 || pinNumber >7) return -1;
+    if(command.substring(3,7) == "HIGH") value = 1;
+    else if(command.substring(3,6) == "LOW") value = 0;
+    else return -2;
+    if(command.startsWith("D")){
+        pinMode(pinNumber, OUTPUT);
+        digitalWrite(pinNumber, value);
+        return 1;}
+    else if(command.startsWith("A")){
+        pinMode(pinNumber+10, OUTPUT);
+        digitalWrite(pinNumber+10, value);
+        return 1;}
+    else return -3;}
+
+int tinkerAnalogRead(String pin){
+    int pinNumber = pin.charAt(1) - '0';
+    if (pinNumber< 0 || pinNumber >7) return -1;
+    if(pin.startsWith("D")){
+        pinMode(pinNumber, INPUT);
+        return analogRead(pinNumber);}
+    else if (pin.startsWith("A")){
+        pinMode(pinNumber+10, INPUT);
+        return analogRead(pinNumber+10);}
+    return -2;}
+
+int tinkerAnalogWrite(String command){
+    int pinNumber = command.charAt(1) - '0';
+    if (pinNumber< 0 || pinNumber >7) return -1;
+    String value = command.substring(3);
+    if(command.startsWith("D")){
+        pinMode(pinNumber, OUTPUT);
+        analogWrite(pinNumber, value.toInt());
+        return 1;}
+    else if(command.startsWith("A")){
+        pinMode(pinNumber+10, OUTPUT);
+        analogWrite(pinNumber+10, value.toInt());
+        return 1;}
+    else return -2;}
 
 void setup() {
     InitializeApplication();
