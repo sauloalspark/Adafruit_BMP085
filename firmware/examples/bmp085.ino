@@ -139,13 +139,13 @@ void loop() {
   BlinkLED();
 #endif
 
-//#ifdef BMP_PUBLISH
-//  publishBMP085info();
-//#else
+#ifdef BMP_PUBLISH
+  publishBMP085info();
+#else
 
-//#ifdef BMP_VARIABLE
-//  updateBMP085info();
-//#endif
+#ifdef BMP_VARIABLE
+  updateBMP085info();
+#endif
 
-//#endif
+#endif
 }
