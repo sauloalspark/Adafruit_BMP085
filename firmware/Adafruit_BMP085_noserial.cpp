@@ -149,8 +149,10 @@ float Adafruit_BMP085::readTemperature(void) {
 
 float Adafruit_BMP085::readAltitude(float sealevelPressure) {
   float altitude;
-  float pressure = readPressure();
-  altitude = 44330 * (1.0 - pow(pressure /sealevelPressure,0.1903));
+  float pressure       = readPressure();
+  float constant_power = 1.0 / 5.25588;
+  //altitude = 44330 * (1.0 - pow(pressure /sealevelPressure,0.1903));
+  altitude = 44330.0 * (1.0 - pow((pressure / sealevelPressure),constant_power));
   return altitude;
 }
 
