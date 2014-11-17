@@ -13,6 +13,8 @@
 
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
+  
+  http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Pressure/BST-BMP085-DS000-06.pdf
  ****************************************************/
  
 #include "application.h"
@@ -105,7 +107,8 @@ int32_t Adafruit_BMP085::readPressure(void) {
   X1 = ((int32_t)b2 * ( (B6 * B6)>>12 )) >> 11;
   X2 = ((int32_t)ac2 * B6) >> 11;
   X3 = X1 + X2;
-  B3 = ((((int32_t)ac1*4 + X3) << oversampling) + 2) / 4;
+  //B3 = ((((int32_t)ac1*4 + X3) << oversampling) + 2) / 4;
+  B3 = ((((int32_t)ac1*4 + X3) << ( oversampling + 2 ))) / 4;
 
   X1 = ((int32_t)ac3 * B6) >> 13;
   X2 = ((int32_t)b1 * ((B6 * B6) >> 12)) >> 16;
