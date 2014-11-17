@@ -23,6 +23,9 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
+#ifndef __ADAFRUIT_BMP085_NOSERIAL_H__
+#define __ADAFRUIT_BMP085_NOSERIAL_H__
+ 
 #include <math.h>
 
 #define boolean bool 
@@ -74,3 +77,5 @@ class Adafruit_BMP085 {
   int16_t ac1, ac2, ac3, b1, b2, mb, mc, md;
   uint16_t ac4, ac5, ac6;
 };
+
+#endif
