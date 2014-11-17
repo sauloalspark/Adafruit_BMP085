@@ -98,8 +98,8 @@ int32_t Adafruit_BMP085::readPressure(void) {
   UP = readRawPressure();
 
   // do temperature calculations
-  X1=(UT-(int32_t)(ac6))*((int32_t)(ac5))/pow(2,15);
-  X2=((int32_t)mc*pow(2,11))/(X1+(int32_t)md);
+  X1=(UT-(int32_t)(ac6))*((int32_t)(ac5)) >> 15;
+  X2=((int32_t)mc << 11)/(X1+(int32_t)md);
   B5=X1 + X2;
 
   // do pressure calcs
@@ -107,8 +107,8 @@ int32_t Adafruit_BMP085::readPressure(void) {
   X1 = ((int32_t)b2 * ( (B6 * B6)>>12 )) >> 11;
   X2 = ((int32_t)ac2 * B6) >> 11;
   X3 = X1 + X2;
-  //B3 = ((((int32_t)ac1*4 + X3) << oversampling) + 2) / 4;
-  B3 = ((((int32_t)ac1*4 + X3) << ( oversampling + 2 ))) / 4;
+  B3 = ((((int32_t)ac1*4 + X3) << oversampling) + 2) >> 2;
+  //B3 = ((((int32_t)ac1*4 + X3) << ( oversampling + 2 ))) / 4;
 
   X1 = ((int32_t)ac3 * B6) >> 13;
   X2 = ((int32_t)b1 * ((B6 * B6) >> 12)) >> 16;
@@ -117,15 +117,15 @@ int32_t Adafruit_BMP085::readPressure(void) {
   B7 = ((uint32_t)UP - B3) * (uint32_t)( 50000UL >> oversampling );
 
   if (B7 < 0x80000000) {
-    p = (B7 * 2) / B4;
+    p = (B7 << 1) / B4;
   } else {
-    p = (B7 / B4) * 2;
+    p = (B7 / B4) << 1;
   }
   X1 = (p >> 8) * (p >> 8);
   X1 = (X1 * 3038) >> 16;
   X2 = (-7357 * p) >> 16;
 
-  p = p + ((X1 + X2 + (int32_t)3791)>>4);
+  p += ((X1 + X2 + (int32_t)3791)>>4);
 
   return p;
 }
@@ -138,10 +138,10 @@ float Adafruit_BMP085::readTemperature(void) {
   UT = readRawTemperature();
 
   // step 1
-  X1 = (UT - (int32_t)ac6) * ((int32_t)ac5) / pow(2,15);
-  X2 = ((int32_t)mc * pow(2,11)) / (X1+(int32_t)md);
+  X1 = (UT - (int32_t)ac6) * ((int32_t)ac5) >> 15;
+  X2 = ((int32_t)mc << 11) / (X1+(int32_t)md);
   B5 = X1 + X2;
-  temp = (B5+8)/pow(2,4);
+  temp = (B5+8) >> 4;
   temp /= 10;
   
   return temp;
