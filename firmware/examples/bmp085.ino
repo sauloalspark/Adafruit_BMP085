@@ -1,5 +1,5 @@
 // This #include statement was automatically added by the Spark IDE.
-#include "Adafruit_BMP085_noserial/Adafruit_BMP085_noserial.h"
+#include "Adafruit_BMP085/Adafruit_BMP085.h"
 
 //#define BMP_SERIAL
 #define BMP_LED
