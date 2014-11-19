@@ -23,8 +23,8 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-#ifndef __ADAFRUIT_BMP085_NOSERIAL_H__
-#define __ADAFRUIT_BMP085_NOSERIAL_H__
+#ifndef __ADAFRUIT_BMP085_H__
+#define __ADAFRUIT_BMP085_H__
  
 #include <math.h>
 
